@@ -11,6 +11,35 @@ class MoviesController < ApplicationController
     @all_ratings = ['G','PG','PG-13','R']
     ratings = params[:ratings]
     @movies = Movie.with_ratings(ratings)
+
+    @sort = params[:sort] || session[:sort]
+    case @sort
+    when 'title'
+     @title_header = 'hilite'
+    when 'release_date'
+     @release_date_header = 'hilite'
+    end
+    
+    if @ratings == {}
+      Hash[@ratings.map {|rating| [rating, rating]}]
+    end
+    
+    if params[:sort] != session[:sort]
+      session[:sort] = @sort
+      redirect_to :sort => @sort, :ratings => @ratings and return
+    end
+    
+    if params[:ratings] != session[:ratings] 
+      session[:sort] = @sort
+      session[:ratings] = @ratings
+      redirect_to :sort => @sort, :ratings => @ratings and return
+    end
+    
+    if @sort
+      @movies = Movie.with_ratings(@ratings).order(@sort)
+    else
+      @movies = Movie.with_ratings(@ratings)
+    end
   end
 
   def new
