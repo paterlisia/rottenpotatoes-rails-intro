@@ -7,11 +7,13 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @ratings_to_show = []
-    @all_ratings = ['G','PG','PG-13','R']
-    ratings = params[:ratings]
-    @movies = Movie.with_ratings(ratings)
-
+    @ratings_to_show = ['G','PG','PG-13','R','NC-17']
+    @all_ratings = ['G','PG','PG-13','R','NC-17']
+    # using session to store
+    @ratings = params[:ratings] || session[:ratings] || @all_ratings.map{ |rating| [rating,1] }.to_h
+    @ratings_to_show = @ratings
+    @movies = Movie.with_ratings(@ratings)
+    
     @sort = params[:sort] || session[:sort]
     case @sort
     when 'title'
